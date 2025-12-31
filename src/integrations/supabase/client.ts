@@ -1,0 +1,23 @@
+// Legacy Vite client - Updated for Next.js compatibility
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./types";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Import the supabase client like this:
+// import { supabase } from "@/integrations/supabase/client";
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+	auth: {
+		storage: typeof window !== "undefined" ? localStorage : undefined,
+		persistSession: true,
+		autoRefreshToken: true,
+		detectSessionInUrl: true,
+	},
+	global: {
+		headers: {
+			"X-Client-Info": "supabase-js-web",
+		},
+	},
+});

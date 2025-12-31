@@ -1,0 +1,306 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		/* Dark theme base */
+		--background: 0 0% 7%;
+		--foreground: 0 0% 95%;
+
+		--card: 0 0% 10%;
+		--card-foreground: 0 0% 95%;
+
+		--popover: 0 0% 10%;
+		--popover-foreground: 0 0% 95%;
+
+		/* Teal/Cyan primary accent */
+		--primary: 187 80% 42%;
+		--primary-foreground: 0 0% 100%;
+
+		/* Dark secondary */
+		--secondary: 0 0% 14%;
+		--secondary-foreground: 0 0% 95%;
+
+		/* Muted grays */
+		--muted: 0 0% 18%;
+		--muted-foreground: 0 0% 60%;
+
+		/* Accent - lighter teal */
+		--accent: 187 60% 50%;
+		--accent-foreground: 0 0% 100%;
+
+		/* Status colors */
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 0 0% 100%;
+
+		--success: 142 76% 36%;
+		--success-foreground: 0 0% 100%;
+
+		--warning: 38 92% 50%;
+		--warning-foreground: 0 0% 0%;
+
+		/* Borders and inputs */
+		--border: 0 0% 20%;
+		--input: 0 0% 14%;
+		--ring: 187 80% 42%;
+
+		--radius: 0.75rem;
+
+		/* Custom tokens */
+		--price: 187 80% 55%;
+		--popular-badge: 0 72% 51%;
+		--header-bg: 0 0% 5%;
+		--sidebar-bg: 0 0% 8%;
+		--product-card-bg: 0 0% 10%;
+		--product-card-hover: 0 0% 12%;
+		--overlay: 0 0% 0%;
+
+		/* Gradients */
+		--gradient-primary: linear-gradient(
+			135deg,
+			hsl(187 80% 42%) 0%,
+			hsl(187 60% 35%) 100%
+		);
+		--gradient-hero: linear-gradient(
+			180deg,
+			hsla(0, 0%, 0%, 0) 0%,
+			hsla(0, 0%, 0%, 0.8) 100%
+		);
+		--gradient-card: linear-gradient(
+			180deg,
+			hsla(0, 0%, 12%, 0) 0%,
+			hsla(0, 0%, 8%, 1) 100%
+		);
+
+		/* Shadows */
+		--shadow-sm: 0 1px 2px hsla(0, 0%, 0%, 0.4);
+		--shadow-md: 0 4px 12px hsla(0, 0%, 0%, 0.5);
+		--shadow-lg: 0 8px 24px hsla(0, 0%, 0%, 0.6);
+		--shadow-glow: 0 0 20px hsla(187, 80%, 42%, 0.3);
+
+		/* Sidebar (dark theme) */
+		--sidebar-background: 0 0% 8%;
+		--sidebar-foreground: 0 0% 80%;
+		--sidebar-primary: 187 80% 42%;
+		--sidebar-primary-foreground: 0 0% 100%;
+		--sidebar-accent: 0 0% 14%;
+		--sidebar-accent-foreground: 0 0% 95%;
+		--sidebar-border: 0 0% 16%;
+		--sidebar-ring: 187 80% 42%;
+	}
+
+	.dark {
+		/* Same as root - already dark */
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+		font-family: "Inter", system-ui, sans-serif;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: "Inter", system-ui, sans-serif;
+		@apply font-semibold tracking-tight;
+	}
+
+	/* Custom scrollbar */
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		@apply bg-background;
+	}
+
+	::-webkit-scrollbar-thumb {
+		@apply bg-muted rounded-full;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		@apply bg-muted-foreground/50;
+	}
+}
+
+@layer components {
+	/* Price styling */
+	.price {
+		@apply text-primary font-semibold;
+	}
+
+	/* Popular badge */
+	.badge-popular {
+		@apply bg-red-500/20 text-red-400 text-xs font-medium px-2 py-0.5 rounded-full;
+	}
+
+	/* Category item */
+	.category-item {
+		@apply flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200;
+		@apply text-muted-foreground hover:text-foreground hover:bg-secondary;
+		@apply no-underline;
+		display: flex;
+	}
+
+	.category-item.active {
+		@apply text-primary bg-primary/10;
+		font-weight: 500;
+	}
+
+	/* Product card hover effect */
+	.product-card {
+		@apply bg-card rounded-xl transition-all duration-300 overflow-hidden;
+		@apply hover:bg-[hsl(var(--product-card-hover))] hover:shadow-lg;
+		@apply border border-transparent hover:border-primary/20;
+	}
+
+	/* Glass effect */
+	.glass {
+		@apply bg-background/80 backdrop-blur-md;
+	}
+
+	/* Gradient text */
+	.gradient-text {
+		@apply bg-clip-text text-transparent;
+		background-image: var(--gradient-primary);
+	}
+
+	/* Toggle button group */
+	.toggle-btn {
+		@apply px-6 py-2 text-sm font-medium transition-all duration-200;
+		@apply rounded-full border border-transparent;
+	}
+
+	.toggle-btn.active {
+		@apply bg-primary text-primary-foreground;
+	}
+
+	.toggle-btn:not(.active) {
+		@apply text-muted-foreground hover:text-foreground;
+	}
+
+	/* Search input styling */
+	.search-input {
+		@apply bg-secondary border-none rounded-xl px-4 py-3;
+		@apply placeholder:text-muted-foreground/60;
+		@apply focus:ring-2 focus:ring-primary/30 focus:bg-secondary/80;
+	}
+
+	/* Allergen tag */
+	.allergen-tag {
+		@apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs;
+		@apply bg-warning/10 text-warning;
+	}
+
+	/* Animated underline */
+	.animated-underline {
+		@apply relative;
+	}
+
+	.animated-underline::after {
+		content: "";
+		@apply absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all duration-300;
+	}
+
+	.animated-underline:hover::after {
+		@apply w-full;
+	}
+
+	/* Cart badge animation */
+	@keyframes cart-bounce {
+		0%,
+		100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.2);
+		}
+	}
+
+	.cart-badge-animate {
+		animation: cart-bounce 0.3s ease-in-out;
+	}
+
+	/* Fade in animation */
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.fade-in {
+		animation: fadeIn 0.3s ease-out forwards;
+	}
+
+	/* Stagger children animation */
+	.stagger-children > * {
+		@apply opacity-0;
+		animation: fadeIn 0.4s ease-out forwards;
+	}
+
+	.stagger-children > *:nth-child(1) {
+		animation-delay: 0.05s;
+	}
+	.stagger-children > *:nth-child(2) {
+		animation-delay: 0.1s;
+	}
+	.stagger-children > *:nth-child(3) {
+		animation-delay: 0.15s;
+	}
+	.stagger-children > *:nth-child(4) {
+		animation-delay: 0.2s;
+	}
+	.stagger-children > *:nth-child(5) {
+		animation-delay: 0.25s;
+	}
+	.stagger-children > *:nth-child(6) {
+		animation-delay: 0.3s;
+	}
+	.stagger-children > *:nth-child(7) {
+		animation-delay: 0.35s;
+	}
+	.stagger-children > *:nth-child(8) {
+		animation-delay: 0.4s;
+	}
+}
+
+@layer utilities {
+	/* Glow effect */
+	.glow-primary {
+		box-shadow: 0 0 20px hsla(187, 80%, 42%, 0.3);
+	}
+
+	/* Text balance */
+	.text-balance {
+		text-wrap: balance;
+	}
+
+	/* Hide scrollbar */
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+}

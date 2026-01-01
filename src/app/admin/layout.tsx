@@ -25,8 +25,9 @@ async function getAdminStats() {
 		.from("products")
 		.select("*", { count: "exact", head: true });
 
+	// Count customers by checking user_roles table
 	const { count: customersCount } = await supabase
-		.from("profiles")
+		.from("user_roles")
 		.select("*", { count: "exact", head: true })
 		.eq("role", "customer");
 

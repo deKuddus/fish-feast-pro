@@ -1,10 +1,6 @@
 "use client";
 
-import {
-	signInWithEmail,
-	signInWithGoogle,
-	signUpWithEmail,
-} from "@/app/actions/auth";
+import { signInWithEmail, signUpWithEmail } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -17,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { createSupabaseClient } from "@/lib/supabase/client";
 import { useAuth } from "@/providers/auth-provider";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -70,16 +67,45 @@ export default function AuthPage() {
 				variant: "destructive",
 			});
 		} else {
+			const message = result.requiresVerification
+				? "Account created! Please check your email to verify."
+				: "Account created successfully! You can now sign in.";
+
 			toast({
 				title: "Success",
-				description: "Account created! Please check your email to verify.",
+				description: message,
 			});
 		}
 	};
 
 	const handleGoogleSignIn = async () => {
 		setIsLoading(true);
-		await signInWithGoogle();
+		try {
+			const supabase = createSupabaseClient();
+			const { error } = await supabase.auth.signInWithOAuth({
+				provider: "google",
+				options: {
+					redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+				},
+			});
+
+			if (error) {
+				toast({
+					title: "Error",
+					description: error.message,
+					variant: "destructive",
+				});
+				setIsLoading(false);
+			}
+			// Note: If successful, user will be redirected to Google, so no need to set loading to false
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: "Failed to initiate Google sign in",
+				variant: "destructive",
+			});
+			setIsLoading(false);
+		}
 	};
 
 	return (

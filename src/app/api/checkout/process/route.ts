@@ -1,3 +1,4 @@
+import { sendOrderConfirmationEmail } from "@/lib/email/service";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -147,6 +148,33 @@ export async function POST(request: Request) {
 
 		if (clearError) {
 			console.error("Error clearing cart:", clearError);
+		}
+
+		// Send order confirmation email
+		try {
+			const { data: profile } = await supabase
+				.from("profiles")
+				.select("email, full_name")
+				.eq("id", user.id)
+				.single();
+
+			if (profile?.email) {
+				await sendOrderConfirmationEmail({
+					orderId: order.id,
+					customerName: profile.full_name || "Customer",
+					customerEmail: profile.email,
+					orderType: order.order_type,
+					total: order.total,
+					items: orderItems.map((item: any) => ({
+						name: item.product_name,
+						quantity: item.quantity,
+						price: item.subtotal,
+					})),
+				});
+			}
+		} catch (emailError) {
+			console.error("Failed to send order confirmation email:", emailError);
+			// Don't fail the order if email fails
 		}
 
 		return NextResponse.json({

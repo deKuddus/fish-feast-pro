@@ -60,13 +60,6 @@ export function AdminSettingsClient({ initialSettings }: SettingsClientProps) {
 		shop_name: initialSettings.shop_name || "",
 		phone: initialSettings.phone || "",
 		opening_hours: parseOpeningHours(),
-		address_line1: initialSettings.address_line1 || "",
-		address_line2: initialSettings.address_line2 || "",
-		city: initialSettings.city || "",
-		postcode: initialSettings.postcode || "",
-		email: initialSettings.email || "",
-		delivery_time_minutes: initialSettings.delivery_time_minutes || 45,
-		opens_at: initialSettings.opens_at || "15:30",
 		privacy_policy: initialSettings.privacy_policy || "",
 		cookie_policy: initialSettings.cookie_policy || "",
 		email_notifications_enabled:
@@ -95,16 +88,6 @@ export function AdminSettingsClient({ initialSettings }: SettingsClientProps) {
 			formData.append("notification_email", settings.notification_email);
 			formData.append("shop_name", settings.shop_name);
 			formData.append("phone", settings.phone);
-			formData.append("address_line1", settings.address_line1);
-			formData.append("address_line2", settings.address_line2);
-			formData.append("city", settings.city);
-			formData.append("postcode", settings.postcode);
-			formData.append("email", settings.email);
-			formData.append(
-				"delivery_time_minutes",
-				String(settings.delivery_time_minutes)
-			);
-			formData.append("opens_at", settings.opens_at);
 			formData.append("opening_hours", JSON.stringify(settings.opening_hours));
 			formData.append("privacy_policy", settings.privacy_policy);
 			formData.append("cookie_policy", settings.cookie_policy);
@@ -181,99 +164,6 @@ export function AdminSettingsClient({ initialSettings }: SettingsClientProps) {
 								}
 								placeholder="+44 20 1234 5678"
 							/>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="email">Email Address</Label>
-							<Input
-								id="email"
-								type="email"
-								value={settings.email}
-								onChange={(e) =>
-									setSettings((s) => ({ ...s, email: e.target.value }))
-								}
-								placeholder="info@yourrestaurant.com"
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="address_line1">Address Line 1</Label>
-							<Input
-								id="address_line1"
-								value={settings.address_line1}
-								onChange={(e) =>
-									setSettings((s) => ({ ...s, address_line1: e.target.value }))
-								}
-								placeholder="Street address"
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<Label htmlFor="address_line2">Address Line 2</Label>
-							<Input
-								id="address_line2"
-								value={settings.address_line2}
-								onChange={(e) =>
-									setSettings((s) => ({ ...s, address_line2: e.target.value }))
-								}
-								placeholder="Building, unit, etc. (optional)"
-							/>
-						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="city">City</Label>
-								<Input
-									id="city"
-									value={settings.city}
-									onChange={(e) =>
-										setSettings((s) => ({ ...s, city: e.target.value }))
-									}
-									placeholder="City"
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="postcode">Postcode</Label>
-								<Input
-									id="postcode"
-									value={settings.postcode}
-									onChange={(e) =>
-										setSettings((s) => ({ ...s, postcode: e.target.value }))
-									}
-									placeholder="Postcode"
-								/>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-2 gap-4">
-							<div className="space-y-2">
-								<Label htmlFor="opens_at">Opens At (Delivery)</Label>
-								<Input
-									id="opens_at"
-									type="time"
-									value={settings.opens_at}
-									onChange={(e) =>
-										setSettings((s) => ({ ...s, opens_at: e.target.value }))
-									}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="delivery_time_minutes">
-									Delivery Time (minutes)
-								</Label>
-								<Input
-									id="delivery_time_minutes"
-									type="number"
-									min="15"
-									value={settings.delivery_time_minutes}
-									onChange={(e) =>
-										setSettings((s) => ({
-											...s,
-											delivery_time_minutes: parseInt(e.target.value) || 45,
-										}))
-									}
-								/>
-							</div>
 						</div>
 					</CardContent>
 				</Card>
@@ -392,10 +282,26 @@ export function AdminSettingsClient({ initialSettings }: SettingsClientProps) {
 						</div>
 
 						<div className="space-y-2">
-							<p className="text-sm text-muted-foreground">
-								<strong>Note:</strong> Resend API Key is now configured via
-								environment variables (RESEND_API_KEY). Update your .env file to
-								change it.
+							<Label htmlFor="resend_api_key">Resend API Key</Label>
+							<Input
+								id="resend_api_key"
+								type="password"
+								value={settings.resend_api_key}
+								onChange={(e) =>
+									setSettings((s) => ({ ...s, resend_api_key: e.target.value }))
+								}
+								placeholder="re_..."
+							/>
+							<p className="text-xs text-muted-foreground">
+								Get your API key from{" "}
+								<a
+									href="https://resend.com/api-keys"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-blue-500 hover:underline"
+								>
+									resend.com
+								</a>
 							</p>
 						</div>
 

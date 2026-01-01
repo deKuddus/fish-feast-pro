@@ -1,7 +1,9 @@
+import { AdminDashboardSkeleton } from "@/components/admin/AdminSkeleton";
 import { getAllOrders } from "@/lib/data/orders";
+import { Suspense } from "react";
 import { AdminOrdersClient } from "./orders/admin-orders-client";
 
-export default async function AdminPage() {
+async function AdminDashboard() {
 	const orders = await getAllOrders();
 
 	return (
@@ -9,5 +11,13 @@ export default async function AdminPage() {
 			initialOrders={orders || []}
 			initialTotal={orders?.length || 0}
 		/>
+	);
+}
+
+export default function AdminPage() {
+	return (
+		<Suspense fallback={<AdminDashboardSkeleton />}>
+			<AdminDashboard />
+		</Suspense>
 	);
 }

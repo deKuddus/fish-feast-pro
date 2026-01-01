@@ -16,19 +16,35 @@ async function getRestaurantInfo() {
 	const supabase = await createSupabaseServer();
 	const { data } = await supabase
 		.from("settings")
-		.select("shop_name, phone, opening_hours")
+		.select(
+			"shop_name, phone, opening_hours, email, address_line1, address_line2, city, postcode"
+		)
 		.eq("id", "00000000-0000-0000-0000-000000000001")
 		.single();
 
 	return {
 		shopName: data?.shop_name || "Fish Feast Pro",
 		phone: data?.phone || "",
+		email: data?.email || "",
+		addressLine1: data?.address_line1 || "",
+		addressLine2: data?.address_line2 || "",
+		city: data?.city || "",
+		postcode: data?.postcode || "",
 		openingHours: (data?.opening_hours as OpeningHours) || null,
 	};
 }
 
 export default async function RestaurantInfoPage() {
-	const { shopName, phone, openingHours } = await getRestaurantInfo();
+	const {
+		shopName,
+		phone,
+		email,
+		addressLine1,
+		addressLine2,
+		city,
+		postcode,
+		openingHours,
+	} = await getRestaurantInfo();
 
 	const formatOpeningHours = () => {
 		if (!openingHours) return [];
@@ -52,9 +68,14 @@ export default async function RestaurantInfoPage() {
 					</CardHeader>
 					<CardContent>
 						<p className="text-lg font-medium">{shopName}</p>
-						<p className="text-muted-foreground">808 London Rd</p>
-						<p className="text-muted-foreground">Leigh-on-Sea</p>
-						<p className="text-muted-foreground">Southend-on-Sea, SS9 3LB</p>
+						{addressLine1 && (
+							<p className="text-muted-foreground">{addressLine1}</p>
+						)}
+						{addressLine2 && (
+							<p className="text-muted-foreground">{addressLine2}</p>
+						)}
+						{city && <p className="text-muted-foreground">{city}</p>}
+						{postcode && <p className="text-muted-foreground">{postcode}</p>}
 						<div className="mt-4 h-48 bg-secondary rounded-lg flex items-center justify-center">
 							<span className="text-muted-foreground">Map placeholder</span>
 						</div>
@@ -109,12 +130,16 @@ export default async function RestaurantInfoPage() {
 							</div>
 							<div>
 								<p className="text-sm text-muted-foreground mb-1">Email</p>
-								<a
-									href="mailto:info@fishfeastpro.com"
-									className="text-primary hover:underline"
-								>
-									info@fishfeastpro.com
-								</a>
+								{email ? (
+									<a
+										href={`mailto:${email}`}
+										className="text-primary hover:underline"
+									>
+										{email}
+									</a>
+								) : (
+									<p className="text-muted-foreground">Not available</p>
+								)}
 							</div>
 						</div>
 					</CardContent>

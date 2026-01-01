@@ -266,11 +266,27 @@ export async function updateSettings(formData: FormData) {
 		const settingsData = {
 			shop_name: formData.get("shop_name") as string,
 			phone: formData.get("phone") as string,
+			address_line1: formData.get("address_line1") as string,
+			address_line2: formData.get("address_line2") as string,
+			city: formData.get("city") as string,
+			postcode: formData.get("postcode") as string,
+			email: formData.get("email") as string,
+			delivery_time_minutes: parseInt(
+				formData.get("delivery_time_minutes") as string
+			),
+			opens_at: formData.get("opens_at") as string,
 			opening_hours: JSON.parse(
 				(formData.get("opening_hours") as string) || "{}"
 			),
 			privacy_policy: formData.get("privacy_policy") as string,
 			cookie_policy: formData.get("cookie_policy") as string,
+			email_notifications_enabled:
+				formData.get("email_notifications_enabled") === "true",
+			email_verification_required:
+				formData.get("email_verification_required") === "true",
+			allow_order_cancellation:
+				formData.get("allow_order_cancellation") === "true",
+			notification_email: formData.get("notification_email") as string,
 			updated_at: new Date().toISOString(),
 		};
 

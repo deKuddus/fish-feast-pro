@@ -20,9 +20,15 @@ export async function createSupabaseServer(): Promise<any> {
 						options: CookieOptions;
 					}[]
 				) {
-					cookiesToSet.forEach(({ name, value, options }) =>
-						cookieStore.set(name, value, options)
-					);
+					try {
+						cookiesToSet.forEach(({ name, value, options }) =>
+							cookieStore.set(name, value, options)
+						);
+					} catch (error) {
+						// Ignore cookie setting errors in contexts where cookies can't be modified
+						// This can happen during static generation or when rendering server components
+						// The cookies will be set properly in Server Actions or Route Handlers
+					}
 				},
 			},
 		}

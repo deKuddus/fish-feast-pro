@@ -1,4 +1,6 @@
+import { AdminTableSkeleton } from "@/components/admin/AdminSkeleton";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { Suspense } from "react";
 import { AdminOptionsClient } from "./admin-options-client";
 
 async function getProducts() {
@@ -19,8 +21,16 @@ async function getProducts() {
 	return products;
 }
 
-export default async function AdminOptionsPage() {
+async function AdminOptionsContent() {
 	const products = await getProducts();
 
 	return <AdminOptionsClient initialProducts={products} />;
+}
+
+export default function AdminOptionsPage() {
+	return (
+		<Suspense fallback={<AdminTableSkeleton />}>
+			<AdminOptionsContent />
+		</Suspense>
+	);
 }

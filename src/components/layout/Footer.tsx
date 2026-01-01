@@ -13,7 +13,11 @@ import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export function Footer() {
+interface FooterProps {
+	settings?: any;
+}
+
+export function Footer({ settings }: FooterProps) {
 	const [cookieDialogOpen, setCookieDialogOpen] = useState(false);
 	const [cookiePreferences, setCookiePreferences] = useState({
 		necessary: true,
@@ -43,7 +47,9 @@ export function Footer() {
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
 					{/* About Section */}
 					<div>
-						<h3 className="font-bold text-lg mb-4">Fish Feast Pro</h3>
+						<h3 className="font-bold text-lg mb-4">
+							{settings?.shop_name || "Fish Feast Pro"}
+						</h3>
 						<p className="text-sm text-muted-foreground">
 							Your favorite fish and chips, now online. Fresh, delicious, and
 							delivered to your door.
@@ -187,8 +193,8 @@ export function Footer() {
 				{/* Bottom Bar */}
 				<div className="border-t pt-6 text-center text-sm text-muted-foreground">
 					<p>
-						&copy; {new Date().getFullYear()} Fish Feast Pro. All rights
-						reserved.
+						&copy; {new Date().getFullYear()}{" "}
+						{settings?.shop_name || "Fish Feast Pro"}. All rights reserved.
 					</p>
 				</div>
 			</div>

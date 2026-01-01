@@ -1,5 +1,6 @@
 "use server";
 
+import { getSettings } from "@/lib/data/settings";
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -7,6 +8,7 @@ import { redirect } from "next/navigation";
 interface AuthActionResult {
 	success: boolean;
 	error?: string;
+	requiresVerification?: boolean;
 }
 
 export async function signInWithEmail(
@@ -46,6 +48,11 @@ export async function signUpWithEmail(
 	}
 
 	const supabase = await createSupabaseServer();
+	const settings = await getSettings();
+
+	// Check if email verification is required from settings
+	const requireEmailVerification =
+		settings?.email_verification_required ?? false;
 
 	const { error } = await supabase.auth.signUp({
 		email,
@@ -55,6 +62,8 @@ export async function signUpWithEmail(
 				full_name: fullName,
 			},
 			emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+			// Disable email confirmation if not required in settings
+			...(requireEmailVerification ? {} : { emailRedirectTo: undefined }),
 		},
 	});
 
@@ -62,28 +71,10 @@ export async function signUpWithEmail(
 		return { success: false, error: error.message };
 	}
 
-	return { success: true };
-}
-
-export async function signInWithGoogle(): Promise<AuthActionResult> {
-	const supabase = await createSupabaseServer();
-
-	const { data, error } = await supabase.auth.signInWithOAuth({
-		provider: "google",
-		options: {
-			redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
-		},
-	});
-
-	if (error) {
-		return { success: false, error: error.message };
-	}
-
-	if (data.url) {
-		redirect(data.url);
-	}
-
-	return { success: true };
+	return {
+		success: true,
+		requiresVerification: requireEmailVerification,
+	};
 }
 
 export async function signOutUser() {

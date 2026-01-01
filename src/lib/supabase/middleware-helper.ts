@@ -22,19 +22,28 @@ export async function updateSession(request: NextRequest) {
 						options: CookieOptions;
 					}[]
 				) {
-					cookiesToSet.forEach(({ name, value }) =>
-						request.cookies.set(name, value)
-					);
-					supabaseResponse = NextResponse.next({
-						request,
-					});
-					cookiesToSet.forEach(({ name, value, options }) =>
-						supabaseResponse.cookies.set(name, value, options)
-					);
+					try {
+						cookiesToSet.forEach(({ name, value }) =>
+							request.cookies.set(name, value)
+						);
+						supabaseResponse = NextResponse.next({
+							request,
+						});
+						cookiesToSet.forEach(({ name, value, options }) =>
+							supabaseResponse.cookies.set(name, value, options)
+						);
+					} catch (error) {
+						// Ignore cookie errors in middleware - they'll be set in the route handler
+					}
 				},
 			},
 		}
 	);
+
+	// Allow auth callback to proceed without user check
+	if (request.nextUrl.pathname === "/auth/callback") {
+		return supabaseResponse;
+	}
 
 	const {
 		data: { user },

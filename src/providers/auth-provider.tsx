@@ -1,6 +1,7 @@
 "use client";
 
-import { checkUserIsAdmin, getCurrentUser } from "@/app/actions/auth";
+import { checkUserIsAdmin } from "@/app/actions/auth";
+import { createSupabaseClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import {
 	createContext,
@@ -27,7 +28,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const loadUser = async () => {
 		try {
 			setIsLoading(true);
-			const currentUser = await getCurrentUser();
+			const supabase = createSupabaseClient();
+			const {
+				data: { user: currentUser },
+			} = await supabase.auth.getUser();
 			setUser(currentUser);
 
 			if (currentUser) {
@@ -46,30 +50,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	};
 
 	useEffect(() => {
+		const supabase = createSupabaseClient();
+
+		// Load initial user
 		loadUser();
 
-		// Listen for auth changes (important for OAuth flows)
-		const channel = new BroadcastChannel("supabase-auth");
-		channel.onmessage = (event) => {
-			if (
-				event.data?.event === "SIGNED_IN" ||
-				event.data?.event === "TOKEN_REFRESHED"
-			) {
+		// Set up auth state change listener
+		const {
+			data: { subscription },
+		} = supabase.auth.onAuthStateChange(async (event, session) => {
+			console.log("Auth state changed:", event);
+			if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
 				loadUser();
+			} else if (event === "SIGNED_OUT") {
+				setUser(null);
+				setIsAdmin(false);
+				setIsLoading(false);
 			}
-		};
-
-		// Also refresh on window focus (catches OAuth redirects)
-		const handleVisibilityChange = () => {
-			if (document.visibilityState === "visible") {
-				loadUser();
-			}
-		};
-		document.addEventListener("visibilitychange", handleVisibilityChange);
+		});
 
 		return () => {
-			channel.close();
-			document.removeEventListener("visibilitychange", handleVisibilityChange);
+			subscription.unsubscribe();
 		};
 	}, []);
 

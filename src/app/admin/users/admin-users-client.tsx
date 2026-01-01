@@ -1,15 +1,25 @@
 "use client";
 
+import { updateUserRole } from "@/app/actions/users";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -18,8 +28,16 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
 import { formatDate, formatPrice, getStatusColor } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Eye, Loader2, Search } from "lucide-react";
+import {
+	ChevronLeft,
+	ChevronRight,
+	Edit,
+	Eye,
+	Loader2,
+	Search,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 
 const itemsPerPage = 10;
@@ -39,8 +57,12 @@ export function AdminUsersClient({
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedUser, setSelectedUser] = useState<any>(null);
 	const [userDetailsOpen, setUserDetailsOpen] = useState(false);
+	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [userOrders, setUserOrders] = useState<any[]>([]);
 	const [loadingOrders, setLoadingOrders] = useState(false);
+	const [editingRole, setEditingRole] = useState<"admin" | "user">("user");
+	const [isSaving, setIsSaving] = useState(false);
+	const { toast } = useToast();
 
 	useEffect(() => {
 		if (searchQuery) {
@@ -82,6 +104,51 @@ export function AdminUsersClient({
 		}
 	};
 
+	const handleEditUser = async (user: any) => {
+		setSelectedUser(user);
+		setEditingRole(user.role || "user");
+		setEditDialogOpen(true);
+	};
+
+	const handleSaveUserRole = async () => {
+		if (!selectedUser) return;
+
+		setIsSaving(true);
+		try {
+			const result = await updateUserRole(selectedUser.id, editingRole);
+
+			if (result.success) {
+				toast({
+					title: "Success",
+					description: "User role updated successfully",
+				});
+
+				// Update the local state
+				const updatedUsers = users.map((u) =>
+					u.id === selectedUser.id ? { ...u, role: editingRole } : u
+				);
+				setUsers(updatedUsers);
+				setFilteredUsers(updatedUsers);
+				setEditDialogOpen(false);
+			} else {
+				toast({
+					title: "Error",
+					description: result.error || "Failed to update user role",
+					variant: "destructive",
+				});
+			}
+		} catch (error) {
+			console.error("Error updating user role:", error);
+			toast({
+				title: "Error",
+				description: "Failed to update user role",
+				variant: "destructive",
+			});
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
 	return (
 		<div>
 			<Card>
@@ -106,6 +173,7 @@ export function AdminUsersClient({
 								<TableHead>Email</TableHead>
 								<TableHead>Full Name</TableHead>
 								<TableHead>Phone</TableHead>
+								<TableHead>Role</TableHead>
 								<TableHead>Joined</TableHead>
 								<TableHead>Actions</TableHead>
 							</TableRow>
@@ -118,23 +186,40 @@ export function AdminUsersClient({
 									</TableCell>
 									<TableCell>{user.full_name || "-"}</TableCell>
 									<TableCell>{user.phone || "-"}</TableCell>
+									<TableCell>
+										<Badge
+											variant={user.role === "admin" ? "default" : "secondary"}
+										>
+											{user.role === "admin" ? "Admin" : "Customer"}
+										</Badge>
+									</TableCell>
 									<TableCell>{formatDate(user.created_at)}</TableCell>
 									<TableCell>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => handleViewUserDetails(user)}
-											title="View User Details"
-										>
-											<Eye className="h-4 w-4" />
-										</Button>
+										<div className="flex gap-1">
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => handleEditUser(user)}
+												title="Edit User Role"
+											>
+												<Edit className="h-4 w-4" />
+											</Button>
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => handleViewUserDetails(user)}
+												title="View User Details"
+											>
+												<Eye className="h-4 w-4" />
+											</Button>
+										</div>
 									</TableCell>
 								</TableRow>
 							))}
 							{paginatedUsers.length === 0 && (
 								<TableRow>
 									<TableCell
-										colSpan={5}
+										colSpan={6}
 										className="text-center text-muted-foreground"
 									>
 										{searchQuery ? "No matching users found" : "No users yet"}
@@ -290,6 +375,57 @@ export function AdminUsersClient({
 							</div>
 						</div>
 					)}
+				</DialogContent>
+			</Dialog>
+
+			{/* Edit User Dialog */}
+			<Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Edit User Role</DialogTitle>
+					</DialogHeader>
+					{selectedUser && (
+						<div className="space-y-4">
+							<div className="space-y-2">
+								<Label>Email</Label>
+								<Input value={selectedUser.email || "N/A"} disabled />
+							</div>
+							<div className="space-y-2">
+								<Label>Full Name</Label>
+								<Input value={selectedUser.full_name || "N/A"} disabled />
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="role">Role</Label>
+								<Select
+									value={editingRole}
+									onValueChange={(value: "admin" | "user") =>
+										setEditingRole(value)
+									}
+								>
+									<SelectTrigger id="role">
+										<SelectValue />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="user">Customer</SelectItem>
+										<SelectItem value="admin">Admin</SelectItem>
+									</SelectContent>
+								</Select>
+							</div>
+						</div>
+					)}
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => setEditDialogOpen(false)}
+							disabled={isSaving}
+						>
+							Cancel
+						</Button>
+						<Button onClick={handleSaveUserRole} disabled={isSaving}>
+							{isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+							Save Changes
+						</Button>
+					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 		</div>

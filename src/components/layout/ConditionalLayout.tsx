@@ -4,7 +4,15 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { usePathname } from "next/navigation";
 
-export function ConditionalLayout({ children }: { children: React.ReactNode }) {
+interface ConditionalLayoutProps {
+	children: React.ReactNode;
+	settings?: any;
+}
+
+export function ConditionalLayout({
+	children,
+	settings,
+}: ConditionalLayoutProps) {
 	const pathname = usePathname();
 	const isAuthPage = pathname?.startsWith("/auth");
 
@@ -16,7 +24,7 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
 		<>
 			<Header />
 			<main className="min-h-screen">{children}</main>
-			<Footer />
+			<Footer settings={settings} />
 		</>
 	);
 }

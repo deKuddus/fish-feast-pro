@@ -12,11 +12,13 @@ import { useMemo, useState } from "react";
 interface HomeClientProps {
 	initialProducts: Product[];
 	initialCategories: Category[];
+	settings: any;
 }
 
 export default function HomeClient({
 	initialProducts,
 	initialCategories,
+	settings,
 }: HomeClientProps) {
 	const [activeCategory, setActiveCategory] = useState<string | null>(null);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -86,18 +88,23 @@ export default function HomeClient({
 				/>
 				<div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
 				<div className="absolute bottom-0 left-0 right-0 p-6 container">
-					<h1 className="text-3xl font-bold mb-2">Fish-A-Licious</h1>
+					<h1 className="text-3xl font-bold mb-2">
+						{settings?.shop_name || "Fish Feast Pro"}
+					</h1>
 					<p className="text-muted-foreground mb-4">
-						808 London Rd, Leigh-on-Sea, SS9 3LB
+						{settings?.address_line1 || ""}
+						{settings?.address_line2 && `, ${settings.address_line2}`}
+						{settings?.city && `, ${settings.city}`}
+						{settings?.postcode && `, ${settings.postcode}`}
 					</p>
 					<div className="flex items-center gap-6 text-sm text-muted-foreground">
 						<span className="flex items-center gap-2">
 							<Clock className="h-4 w-4" />
-							Opens for delivery at 15:30
+							Opens for delivery at {settings?.opens_at || "15:30"}
 						</span>
 						<span className="flex items-center gap-2">
 							<Bike className="h-4 w-4" />
-							Delivery time 45 min
+							Delivery time {settings?.delivery_time_minutes || 45} min
 						</span>
 					</div>
 				</div>
